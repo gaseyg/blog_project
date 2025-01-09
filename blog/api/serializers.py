@@ -25,3 +25,13 @@ def create(self, validated_data):
     user.save()
 
     return user
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'first_name',
+            'last_name',
+        )
