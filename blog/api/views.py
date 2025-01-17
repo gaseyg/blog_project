@@ -13,13 +13,13 @@ class UserViewSet(
     def get_serializer_class(self):
         if self.action == "create":
             return UserRegistrationSerializer
-        return UserListSeriaiizer
+        return UserListSerializer
     # serializer_class = UserRegistrationSerializer
     queryset = User.objects.all().order_by('-id')
 
     def get_permissions(self):
-        if sel.action == 'create':
-            self.permissions_class = AllowAny
+        if self.action == 'create':
+            self.permission_classes = [AllowAny]
         else:
-            super().get_permissions_class = IsAuthenticated
+            self.permission_classes = [IsAuthenticated]
         return super().get_permissions()
