@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from blog.models import User
+from blog.models import User, Post
 
 
+# сериалайзер регистрации пользователя
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -27,6 +28,7 @@ def create(self, validated_data):
     return user
 
 
+# сериалайзер для вывода списка юзер
 class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -34,4 +36,101 @@ class UserListSerializer(serializers.ModelSerializer):
             'id',
             'first_name',
             'last_name',
+        )
+
+
+# сериалайзер для вывода списка постов конкретного пользователя
+class UserPostListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = (
+            "id",
+            "title",
+            "body",
+            "created_at",
+        )
+
+
+# сер-ер для получения инфы о конкретном юзере
+class UserInfoSerializer(serializers.ModelSerializer):
+    posts = UserPostListSerializer(many=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'first_name',
+            'last_name',
+            'email',
+            'posts'
+        )
+
+
+# сериалайзер для сокращенной инфы об авторе
+class UserShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+             "id",
+             "first_name",
+             "last_name",
+        )
+
+
+# сериализатор для вывода всех постов
+class PostListSerializer(serializers.ModelSerializer):
+    author = UserShortSerializer()
+    body = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Post
+
+        fields = (
+            'id',
+            'author',
+            'title',
+            'body',
+            'created_at',
+        )
+
+        def get_body(self, obj) -> str:
+            if len(obj.body) > 120:
+                return obj.body[:120] + "..."
+            return obj.body
+
+
+# сериализатор для вывод информации о конкретном посте
+class PostInfoSerializer(serializers.ModelSerializer):
+    author = UserShortSerializer()
+    my_reaction = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Post
+
+        fields = (
+            'id',
+            'author',
+            'title',
+            'body',
+            'my_reaction',
+            'created_at',
+        )
+
+        def get_my_reaction(self, obj) -> str:
+            reaction = self.context['request'].user.reactions.filter(post=obj).last()
+            return reaction.value if reaction else ''
+
+
+class PostCreateUpdateSerializer(serializers.ModelSerializer):
+    author = serializers.HiddenField(
+        default=serializers.CurrentUserDefault(),
+    )
+
+    class Meta:
+        model = Post
+        fields = (
+            'id',
+            'author',
+            'title',
+            'body',
         )
