@@ -93,10 +93,10 @@ class PostListSerializer(serializers.ModelSerializer):
             'created_at',
         )
 
-        def get_body(self, obj) -> str:
-            if len(obj.body) > 120:
-                return obj.body[:120] + "..."
-            return obj.body
+    def get_body(self, obj) -> str:
+        if len(obj.body) > 120:
+            return obj.body[:120] + "..."
+        return obj.body
 
 
 # сериализатор для вывод информации о конкретном посте
