@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import (
                    CreateModelMixin,
@@ -11,7 +10,6 @@ from blog.api.serializers import (
 #                  UserRetrieveSerializer,
                    )
 from blog.models import User
-=======
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework.mixins import (
                     CreateModelMixin,
@@ -29,7 +27,6 @@ from blog.api.serializers import (
 )
 from blog.models import User, Post
 from django.core.exceptions import PermissionDenied
->>>>>>> 8bab4d45dd944251eb1592cf35b5ecfd84cbf898
 
 
 class UserViewSet(
@@ -41,13 +38,11 @@ class UserViewSet(
     def get_serializer_class(self):
         if self.action == "create":
             return UserRegistrationSerializer
-<<<<<<< HEAD
 #         if self.action == "retrieve":
 #             return UserRetrieveSerializer
-=======
+
         if self.action == "retrieve":
             return UserInfoSerializer
->>>>>>> 8bab4d45dd944251eb1592cf35b5ecfd84cbf898
         return UserListSerializer
     queryset = User.objects.all().order_by('-id')
 
@@ -79,5 +74,5 @@ class PostViewSet(ModelViewSet):
 
     def perform_destroy(self, instance):
         if instance.author != self.request.user:
-            raise PermissionDemied('Вы не являетесь автором этого поста')
+            raise PermissionDenied('Вы не являетесь автором этого поста')
         instance.delete()
