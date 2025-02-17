@@ -1,21 +1,9 @@
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework.mixins import (
                    CreateModelMixin,
                    ListModelMixin,
-                   RetrieveModelMixin,)
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from blog.api.serializers import (
-                   UserRegistrationSerializer,
-                   UserListSerializer,
-#                  UserRetrieveSerializer,
-                   )
-from blog.models import User
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
-from rest_framework.mixins import (
-                    CreateModelMixin,
-                    ListModelMixin,
-                    RetrieveModelMixin,
-)
+                   RetrieveModelMixin,
+                   DestroyModelMixin,)
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from blog.api.serializers import (
                     UserRegistrationSerializer,
@@ -24,8 +12,9 @@ from blog.api.serializers import (
                     PostListSerializer,
                     PostInfoSerializer,
                     PostCreateUpdateSerializer,
-)
-from blog.models import User, Post
+                    CommentSerializer,
+                   )
+from blog.models import User, Post, Comment
 from django.core.exceptions import PermissionDenied
 
 
@@ -78,22 +67,21 @@ class PostViewSet(ModelViewSet):
         instance.delete()
 
 
-    class CommentViewSet(ModelViewSet):
-        queryset = Comment.objects.all(
-            CreateModelMixin,
-            ListModelMixin,
-            RetrieveModelMixin,
-            GenericViewSet,
-    ):
-        queryset = Comments.objects.all().order_by('-id')
-        permission_classes = [IsAuthenticated]
-        serializer_class = CommentSerializer
-        filter_backends = [DjangoFilterBackend]
-        filter_fields = ['post__id']
+class CommentViewSet(
+    CreateModelMixin,
+    ListModelMixin,
+    DestroyModelMixin,
+    GenericViewSet,
+):
+    queryset = Comment.objects.all().order_by('-id')
+    permission_classes = [IsAuthenticated]
+    serializer_class = CommentSerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_fields = ['post__id']
 
-        def perfomr_destroy(self, instance):
-            if instance.author != self.request.user:
-                raise PermissionDenied('Вы не являетесь автором этого комментария.')
-            instance.delete()
+    def perfomr_destroy(self, instance):
+        if instance.author != self.request.user:
+            raise PermissionDenied('Вы не являетесь автором этого комментария.')
+        instance.delete()
 
 
