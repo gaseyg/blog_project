@@ -76,3 +76,24 @@ class PostViewSet(ModelViewSet):
         if instance.author != self.request.user:
             raise PermissionDenied('Вы не являетесь автором этого поста')
         instance.delete()
+
+
+    class CommentViewSet(ModelViewSet):
+        queryset = Comment.objects.all(
+            CreateModelMixin,
+            ListModelMixin,
+            RetrieveModelMixin,
+            GenericViewSet,
+    ):
+        queryset = Comments.objects.all().order_by('-id')
+        permission_classes = [IsAuthenticated]
+        serializer_class = CommentSerializer
+        filter_backends = [DjangoFilterBackend]
+        filter_fields = ['post__id']
+
+        def perfomr_destroy(self, instance):
+            if instance.author != self.request.user:
+                raise PermissionDenied('Вы не являетесь автором этого комментария.')
+            instance.delete()
+
+
